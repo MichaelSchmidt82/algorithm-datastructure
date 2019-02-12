@@ -51,7 +51,7 @@ class Stack:
         POP and then PUSH the stack
         """
         if not self.__stack:
-            raise ValueError("Ca'nt assign to an emtpy stack")
+            raise ValueError("Can't assign to an emtpy stack")
 
         self.__stack[-1] = top
 
