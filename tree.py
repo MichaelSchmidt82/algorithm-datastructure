@@ -22,14 +22,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-class Tree:
 
+class Tree:
+    """
+    A Tree()
+    """
     def __init__(self, data):
         self.left = None
         self.right = None
         self.data = data
 
+    def find(self, data):
+        """
+        Check existence.
+        """
+
+        if not self.data:
+            return False
+
+        if self.left and data < self.data:
+            return self.left.find(data)
+
+        if self.right and data > self.data:
+            return self.right.find(data)
+
+        if data == self.data:
+            return True
+
+        return False
+
+
     def insert(self, data):
+        """
+        Insert an element.
+        """
+
         if self.data:
             if data < self.data:
                 if self.left is None:
@@ -45,6 +72,12 @@ class Tree:
             self.data = data
 
     def in_order(self):
+        """
+        GENERATOR
+
+        in-order traversal
+        """
+
         if self.left:
             for data in self.left.in_order():
                 yield data
@@ -57,6 +90,11 @@ class Tree:
                 yield data
 
     def pre_order(self):
+        """
+        GENERATOR
+
+        pre-order traversal
+        """
         if self.data:
             yield self.data
 
@@ -69,6 +107,11 @@ class Tree:
                 yield data
 
     def post_order(self):
+        """
+        GENERATOR
+
+        post-order traversal
+        """
         if self.left:
             for data in self.left.post_order():
                 yield data
@@ -79,17 +122,3 @@ class Tree:
 
         if self.data:
             yield self.data
-
-
-root = Tree(50)
-
-root.insert(25)
-root.insert(12)
-root.insert(37)
-
-root.insert(75)
-root.insert(87)
-root.insert(62)
-
-for value in root.post_order():
-    print(value)
