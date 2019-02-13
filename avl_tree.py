@@ -24,6 +24,7 @@ SOFTWARE.
 
 from tree import Tree
 
+
 class AVLTree(Tree):
     """
     A self-balancing AVL tree
@@ -32,119 +33,86 @@ class AVLTree(Tree):
     def __init__(self, data):
         super(AVLTree, self).__init__(data)
 
-        self.bal = 0
+        self.height = 1
 
-    def insert(self, value):
-        """
-        Insert and balance (if needed).
-        """
+    def insert(self, root, key):
 
-        if value == self.data:
-            return False
+        if not root:
+            return AVLTree(key)
 
-        if value < self.data:
-            if not self.left:
-                self.left = Tree(value)
-                if not self.right:
-                    self.bal = -1
-                else:
-                    self.bal = 0
-            else:
-                if self.left.insert(value):
-                    if self.left.bal < -1 or self.left.bal > 1:
-                        self.rebalance(self.left)
-                    else:
-                        self.bal -= 1
-
-        if value > self.data:
-            if not self.right:
-                self.right = Tree(value)
-                if not self.left:
-                    self.bal = 1
-                else:
-                    self.bal = 0
-            else:
-                if self.right.insert(value):
-                    if self.right.bal < -1 or self.right.bal > 1:
-                        self.rebalance(self.right)
-                    else:
-                        self.bal += 1
-
-        if not self.bal:
-            return True
-
-        return False
-
-    def rotate_left(self, node):
-        """
-        Left branch rotation
-        """
-
-        r = node.right
-        node.right = r.Left
-
-        r.left = node
-
-        if node == self.left:
-            self.left = r
+        if key < root.data:
+            root.left = self.insert(root.left, key)
         else:
-            self.right = r
+            root.right = self.insert(root.right, key)
 
-        node.bal = 0
-        r.bal = 0
+        root.height = 1 + max(self.get_height(root.left), self.get_height(root.right))
 
-    def rotate_right(self, node):
-        """
-        Right branch rotation
-        """
+        balance = self.get_balance(root)
 
-        l = node.left
-        node.left = l.right
+        if balance > 1 and key < root.left.data:
+            return self.rotate_right(root)
 
-        l.right = node
+        if balance < -1 and key > root.right.data:
+            return self.rotate_left(root)
 
-        if node == self.left:
-            self.left = l
-        else:
-            self.right = l
+        if balance > 1 and key > root.left.data:
+            root.left = self.rotate_left(root.left)
+            return self.rotate_right(root)
 
-        node.bal = 0
-        l.bal = 0
+        if balance < -1 and key < root.right.data:
+            root.right = self.rotate_right(root.right)
+            return self.rotate_left(root)
 
-    def rotate_right_left(self, node):
-        """
-        right-left rotation
-        """
+        return root
 
-        node.right.left.bal = 1
-        node.rotate_right(node.right)
-        node.right.bal = 1
-        self.rotate_left(node)
+    def rotate_left(self, sub_tree):
 
-    def rotate_left_right(self, node):
-        """
-        left-right rotation
-        """
+        new_root = sub_tree.right
+        left = new_root.left
 
-        node.left.right.bal = -1
-        node.rotate_left(node.left)
-        node.left.bal = -1
-        self.rotate_right(node)
+        new_root.left = sub_tree
+        sub_tree.right = left
+
+        sub_tree.height = 1 + max(self.get_height(sub_tree.left), self.get_height(sub_tree.right))
+        new_root.height = 1 + max(self.get_height(new_root.left), self.get_height(new_root.right))
+
+        return new_root
+
+    def rotate_right(self, sub_tree):
+
+        new_root = sub_tree.left
+        right = new_root.right
+
+        new_root.right = sub_tree
+        sub_tree.left = right
+
+        sub_tree.height = 1 + max(self.get_height(sub_tree.left), self.get_height(sub_tree.right))
+        new_root.height = 1 + max(self.get_height(new_root.left), self.get_height(new_root.right))
+
+        return new_root
+
+    def get_height(self, root):
+        if not root:
+            return 0
+
+        return root.height
+
+    def get_balance(self, root):
+        if not root:
+            return 0
+
+        return self.get_height(root.left) - self.get_height(root.right)
 
 
-    def rebalance(self, node):
-        """
-        Full rebalance
-        """
+avl_tree = AVLTree(5)
+root = None
 
-        if node.bal == -2 and node.left.bal == -1:
-            self.rotate_right(node)
+root = avl_tree.insert(root, 10)
+root = avl_tree.insert(root, 20)
+root = avl_tree.insert(root, 30)
+root = avl_tree.insert(root, 40)
+root = avl_tree.insert(root, 50)
+root = avl_tree.insert(root, 25)
 
-        if node.bal == 2 and node.right.bal == 1:
-            self.rotate_left(node)
-
-        if node.bal == -2 and node.left.bal == 1:
-            self.rotate_left_right(node)
-
-        if node.bal == 2 and node.right.bal == -1:
-            self.rotate_right_left(node)
+for i in root.pre_order():
+    print(i)
