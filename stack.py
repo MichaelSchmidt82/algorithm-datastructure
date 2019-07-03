@@ -22,81 +22,51 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-
 class Stack:
-    """
-    A Stack
-    """
-
+    """ A basic stack """
     def __init__(self):
+        """ Construct an empty stack out of a list() """
         self.__stack = []
 
     def __len__(self):
+        """ Support for Python's built-in function len() """
         return len(self.__stack)
 
     @property
     def top(self):
-        """
-        top of Stack
-        """
-
+        """ TOP of Stack """
         if not self.__stack:
             return None
-
         return self.__stack[-1]
 
-    @top.setter
-    def top(self, top):
-        """
-        POP and then PUSH the stack
-        """
-        if not self.__stack:
-            raise ValueError("Can't assign to an emtpy stack")
-
-        self.__stack[-1] = top
-
     def pop(self):
-        """
-        POP operation
-        """
-
+        """ POP operation """
         if self.__stack:
             top = self.__stack[-1]
             self.__stack = self.__stack[:-1]
             return top
-
         return None
 
     def items(self):
-        """
-        Generator POP
-        """
+        """ Generator POP """
         for _ in self.__stack:
             top = self.__stack[-1]
             self.__stack = self.__stack[:-1]
             yield top
 
     def push(self, value=None):
-        """
-        PUSH operation
-        """
+        """ PUSH operation """
         self.__stack.append(value)
 
-    def empty(self):
-        """
-        EMPTY query
-        """
+    def empty(self) -> bool:
+        """ EMPTY query """
         return bool(len(self.__stack))
 
     @property
     def size(self):
-        """
-        SIZE of Stack
-        """
+        """ SIZE of Stack, see also len() """
         return len(self.__stack)
 
     def clear(self):
-        """
-        clear the Stack
-        """
+        """ CLEAR the Stack """
         self.__stack = []
