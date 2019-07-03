@@ -29,25 +29,25 @@ class Queue:
         self.__queue = []
 
     def __len__(self):
-        """ support for Python's built-in function len() """
+        """ Support for Python's built-in function len() """
+        return len(self.__queue)
+
+    @property
+    def front(self):
+        """ FRONT of queue """
+        if not self.__queue:
+            return None
+        return self.__queue[0]
+
+    @property
+    def size(self):
+        """ SIZE of queue """
         return len(self.__queue)
 
     @property
     def empty(self):
         """ Check if the queue is empty """
         return bool(len(self.__queue))
-
-    @property
-    def size(self):
-        """ SIZE of queue"""
-        return len(self.__queue)
-
-    @property
-    def front(self):
-        """ FRONT of queue"""
-        if not self.__queue:
-            return None
-        return self.__queue[0]
 
     def push(self, data):
         """ PUSH operation

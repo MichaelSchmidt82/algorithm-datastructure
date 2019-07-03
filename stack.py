@@ -25,7 +25,7 @@ SOFTWARE.
 class Stack:
     """ A basic stack """
     def __init__(self):
-        """ Construct an empty stack out of a list() """
+        """ Construct an empty stack using a list() """
         self.__stack = []
 
     def __len__(self):
@@ -34,10 +34,19 @@ class Stack:
 
     @property
     def top(self):
-        """ TOP of Stack """
+        """ TOP of Stack, same as PEEK """
         if not self.__stack:
             return None
         return self.__stack[-1]
+
+    @property
+    def size(self):
+        """ SIZE of Stack, see also len() """
+        return len(self.__stack)
+
+    def push(self, value=None):
+        """ PUSH operation """
+        self.__stack.append(value)
 
     def pop(self):
         """ POP operation """
@@ -54,18 +63,9 @@ class Stack:
             self.__stack = self.__stack[:-1]
             yield top
 
-    def push(self, value=None):
-        """ PUSH operation """
-        self.__stack.append(value)
-
     def empty(self) -> bool:
         """ EMPTY query """
         return bool(len(self.__stack))
-
-    @property
-    def size(self):
-        """ SIZE of Stack, see also len() """
-        return len(self.__stack)
 
     def clear(self):
         """ CLEAR the Stack """
