@@ -38,7 +38,7 @@ class BinarySearchTree:
 
         def pre_order(self):
             """ pre-order traversal generator function """
-            if self.data:
+            if self.data is not None:
                 yield self.data
             if self.left:
                 for data in self.left.pre_order():
@@ -130,11 +130,13 @@ class BinarySearchTree:
 
     def in_order(self):
         """ Public method which returns a generator for in-order traversal """
-        return self.root.in_order()
+        for data in self.root.in_order():
+            yield data
 
     def post_order(self):
         """ Public method which returns a generator for post-order traversal """
-        return self.root.post_order()
+        for data in self.root.post_order():
+            yield data
 
 
 class AVLTree(BinarySearchTree):
@@ -149,28 +151,14 @@ class AVLTree(BinarySearchTree):
         """ Public method for inserting data
         :data:      object()           Which implements relational <, >, ==
         """
-        if data < self.root.data:
-            self.root.left = self._insert(self.root.left, data)
-        else:
-            self.root.right = self._insert(self.root.right, data)
+        self._insert(self.root, data)
 
-        self.root.height = 1 + max(self._get_height(self.root.left),
-                                   self._get_height(self.root.right))
-
-        balance = self._get_balance(self.root)
-        if balance > 1 and data < self.root.left.data:
-            self.root = self._rotate_right(self.root)
-
-        if balance < -1 and data > self.root.right.data:
-            self.root = self._rotate_left(self.root)
-
-        if balance > 1 and data > self.root.left.data:
-            self.root.left = self._rotate_left(self.root.left)
-            self.root = self._rotate_right(self.root)
-
-        if balance < -1 and data < self.root.right.data:
-            self.root.right = self._rotate_right(self.root.right)
-            self.root = self._rotate_left(self.root)
+    def delete(self, data):
+        """ Public method for recursive delete
+        Removes element and balances the tree
+        :data:      object           Which implements relational <, >, ==
+        """
+        self.root = self._delete(self.root, data)
 
     def _insert(self, node, data) -> BinarySearchTree._node:
         """ Hidden method for recursive insert
@@ -185,8 +173,7 @@ class AVLTree(BinarySearchTree):
         else:
             node.right = self._insert(node.right, data)
 
-        node.height = 1 + max(self._get_height(node.left),
-                              self._get_height(node.right))
+        node.height = 1 + max(self._get_height(node.left), self._get_height(node.right))
 
         balance = self._get_balance(node)
         if balance > 1 and data < node.left.data:
@@ -205,6 +192,56 @@ class AVLTree(BinarySearchTree):
 
         return node
 
+    def _delete(self, node, data):
+        """ Hidden method for recursive delete
+        :node:      _node()         A tree node
+        :data:      object          Which implements relational <, >, ==
+        """
+        if not node:
+            return node
+
+        if data < node.data:
+            node.left = self._delete(node.left, data)
+        elif data > node.data:
+            node.right = self._delete(node.right, data)
+
+        else:
+            if node.left is None:
+                temp = node.right
+                node = None
+                return temp
+
+            if node.right is None:
+                temp = node.left
+                node = None
+                return temp
+
+            temp = self._get_minvalue_node(node.right)
+            node.data = temp.data
+            node.right = self._delete(node.right, temp.data)
+
+        if node is None:
+            return node
+
+        node.height = 1 + max(self._get_height(node.left), self._get_height(node.right))
+        balance = self._get_balance(node)
+
+        if balance > 1 and self._get_balance(node.left) >= 0:
+            return self._rotate_right(node)
+
+        if balance < -1 and self._get_balance(node.right) <= 0:
+            return self._rotate_left(node)
+
+        if balance > 1 and self._get_balance(node.left) < 0:
+            node.left = self._rotate_left(node.left)
+            return self._rotate_right(node)
+
+        if balance < -1 and self._get_balance(node.right) > 0:
+            node.right = self._rotate_right(node.right)
+            return self._rotate_left(node)
+
+        return node
+
     def _rotate_left(self, subtree):
         """ Hidden method for left rotations
         :subtree:   _node()     Root node of a subtree
@@ -215,10 +252,8 @@ class AVLTree(BinarySearchTree):
         new_root.left = subtree
         subtree.right = left
 
-        subtree.height = 1 + max(self._get_height(subtree.left),
-                                 self._get_height(subtree.right))
-        new_root.height = 1 + max(self._get_height(new_root.left),
-                                  self._get_height(new_root.right))
+        subtree.height = 1 + max(self._get_height(subtree.left), self._get_height(subtree.right))
+        new_root.height = 1 + max(self._get_height(new_root.left), self._get_height(new_root.right))
         return new_root
 
     def _rotate_right(self, subtree):
@@ -231,10 +266,8 @@ class AVLTree(BinarySearchTree):
         new_root.right = subtree
         subtree.left = right
 
-        subtree.height = 1 + max(self._get_height(subtree.left),
-                                 self._get_height(subtree.right))
-        new_root.height = 1 + max(self._get_height(new_root.left),
-                                  self._get_height(new_root.right))
+        subtree.height = 1 + max(self._get_height(subtree.left), self._get_height(subtree.right))
+        new_root.height = 1 + max(self._get_height(new_root.left), self._get_height(new_root.right))
         return new_root
 
     def _get_height(self, subtree):
@@ -252,3 +285,9 @@ class AVLTree(BinarySearchTree):
         if not subtree:
             return 0
         return self._get_height(subtree.left) - self._get_height(subtree.right)
+
+    def _get_minvalue_node(self, node):
+        if node is None or node.left is None:
+            return node
+
+        return self._get_minvalue_node(node.left)
