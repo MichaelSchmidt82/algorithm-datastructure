@@ -52,7 +52,7 @@ class BinarySearchTree:
             if self.left:
                 for data in self.left.in_order():
                     yield data
-            if self.data:
+            if self.data is not None:
                 yield self.data
             if self.right:
                 for data in self.right.in_order():
@@ -72,17 +72,10 @@ class BinarySearchTree:
     def __init__(self, data):
         """ construct the root of the tree """
         self.root = self._node(data)
+        self.size = 1
 
-    def insert(self, data):
-        """ Insert an element into the tree
-        :data:      object()        Which implements <, >, ==
-        """
-        if not self.root.left and data < self.root.data:
-            self.root.left = self._node(data)
-        elif not self.root.right and data > self.root.data:
-            self.root.right = self._node(data)
-        else:
-            self._insert(self.root, data)
+    def __iter__(self):
+        return self.root.in_order()
 
     def find(self, data) -> bool:
         """ Search tree to check if `data` is in tree
@@ -91,24 +84,34 @@ class BinarySearchTree:
         """
         return self._find(self.root, data)
 
-    def _insert(self, node, data):
-        """ Hidden method for recursive insert
-        :node:      _node()         root node of subtree
-        :data:      object()        which implements <, >, ==
+    def insert(self, data):
+        """ Insert an element into the tree
+        :data:      object()        Which implements <, >, ==
         """
-        if node.data:
-            if data < node.data:
-                if node.left is None:
-                    node.left = self._node(data)
-                else:
-                    self._insert(node.left, data)
-            elif data > node.data:
-                if node.right is None:
-                    node.right = self._node(data)
-                else:
-                    self._insert(node.right, data)
-        else:
-            node.data = data
+        self._insert(self.root, data)
+        self.size += 1
+
+    def delete(self, data):
+        """
+
+        """
+        self.root = self._delete(self.root, data)
+        self.size -= 1
+
+    def pre_order(self):
+        """ Public method which returns a generator for pre-order traversal """
+        for data in self.root.pre_order():
+            yield data
+
+    def in_order(self):
+        """ Public method which returns a generator for in-order traversal """
+        for data in self.root.in_order():
+            yield data
+
+    def post_order(self):
+        """ Public method which returns a generator for post-order traversal """
+        for data in self.root.post_order():
+            yield data
 
     def _find(self, node, data) -> bool:
         """ Hidden method for recursive search
@@ -124,19 +127,66 @@ class BinarySearchTree:
             return self._find(node.right, data)
         return False
 
-    def pre_order(self):
-        """ Public method which returns a generator for pre-order traversal """
-        return self.root.pre_order()
+    def _insert(self, node, data):
+        """ Hidden method for recursive insert
+        :node:      _node()         root node of subtree
+        :data:      object()        which implements <, >, ==
+        """
+        if node.data is not None:
+            if data < node.data:
+                if node.left is None:
+                    node.left = self._node(data)
+                else:
+                    self._insert(node.left, data)
+            elif data > node.data:
+                if node.right is None:
+                    node.right = self._node(data)
+                else:
+                    self._insert(node.right, data)
+        else:
+            node.data = data
 
-    def in_order(self):
-        """ Public method which returns a generator for in-order traversal """
-        for data in self.root.in_order():
-            yield data
+    def _delete(self, node, data):
+        """
 
-    def post_order(self):
-        """ Public method which returns a generator for post-order traversal """
-        for data in self.root.post_order():
-            yield data
+        """
+        if node is None:
+            return node
+
+        if data < node.data:
+            node.left = self._delete(node.left, data)
+        elif data > node.data:
+            node.right = self._delete(node.right, data)
+        else:
+            if node.left is None:
+                temp = node.right
+                node = None
+                return temp
+
+            if node.right is None:
+                temp = node.left
+                node = None
+                return temp
+
+            temp = self._get_minvalue_node(node.right)
+            node.key = temp.key
+            node.right = self._delete(node.right, temp.key)
+
+        return node
+
+    def _get_minvalue_node(self, node):
+        if node is None or node.left is None:
+            return node
+
+        return self._get_minvalue_node(node.left)
+
+    def _get_height(self, subtree):
+        """ Hidden method which returns the nodes height in the tree
+        :subtree:   _node()     Root node of a subtree
+        """
+        if not subtree:
+            return 0
+        return subtree.height
 
 
 class AVLTree(BinarySearchTree):
@@ -151,7 +201,8 @@ class AVLTree(BinarySearchTree):
         """ Public method for inserting data
         :data:      object()           Which implements relational <, >, ==
         """
-        self._insert(self.root, data)
+        self.root = self._insert(self.root, data)
+        self.size += 1
 
     def delete(self, data):
         """ Public method for recursive delete
@@ -159,11 +210,14 @@ class AVLTree(BinarySearchTree):
         :data:      object           Which implements relational <, >, ==
         """
         self.root = self._delete(self.root, data)
+        self.size -= 1
 
     def _insert(self, node, data) -> BinarySearchTree._node:
         """ Hidden method for recursive insert
         :node:      _node()         A tree node
-        :data:      object           Which implements relational <, >, ==
+        :data:      object          Which implements relational <, >, ==
+
+        :returns:   _node()         a node (ultimately the new root)
         """
         if not node:
             return self._node(data)
@@ -204,7 +258,6 @@ class AVLTree(BinarySearchTree):
             node.left = self._delete(node.left, data)
         elif data > node.data:
             node.right = self._delete(node.right, data)
-
         else:
             if node.left is None:
                 temp = node.right
@@ -270,14 +323,6 @@ class AVLTree(BinarySearchTree):
         new_root.height = 1 + max(self._get_height(new_root.left), self._get_height(new_root.right))
         return new_root
 
-    def _get_height(self, subtree):
-        """ Hidden method which returns the nodes height in the tree
-        :subtree:   _node()     Root node of a subtree
-        """
-        if not subtree:
-            return 0
-        return subtree.height
-
     def _get_balance(self, subtree):
         """ Hidden method which determines the tree balance
         :subtree:   _node()     Root node of a subtree
@@ -285,9 +330,3 @@ class AVLTree(BinarySearchTree):
         if not subtree:
             return 0
         return self._get_height(subtree.left) - self._get_height(subtree.right)
-
-    def _get_minvalue_node(self, node):
-        if node is None or node.left is None:
-            return node
-
-        return self._get_minvalue_node(node.left)
