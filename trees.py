@@ -28,8 +28,7 @@ class BinarySearchTree:
         """ A basic node object for trees """
         def __init__(self, data):
             """ Create a node with no children and just a data element
-            :data:      object()      Which implements relational <, >, ==
-            """
+            :data:      object()      Which implements relational <, >, == """
             self.left = None
             self.right = None
             self.data = data
@@ -75,26 +74,28 @@ class BinarySearchTree:
         self.size = 1
 
     def __iter__(self):
+        """ return an in-order interator to the tree """
         return self.root.in_order()
+
+    def __len__(self):
+        """ return the size of the tree """
+        return self.size
 
     def find(self, data) -> bool:
         """ Search tree to check if `data` is in tree
         :data:      object()        Which implements <, >, ==
-        :returns:   bool            True if found, otherwise False
-        """
+        :returns:   bool            True if found, otherwise False """
         return self._find(self.root, data)
 
     def insert(self, data):
         """ Insert an element into the tree
-        :data:      object()        Which implements <, >, ==
-        """
+        :data:      object()        Which implements <, >, == """
         self._insert(self.root, data)
         self.size += 1
 
     def delete(self, data):
-        """
-
-        """
+        """ Public Method to remove data
+        :data:      object()        Which implements <, >, == """
         self.root = self._delete(self.root, data)
         self.size -= 1
 
@@ -116,8 +117,7 @@ class BinarySearchTree:
     def _find(self, node, data) -> bool:
         """ Hidden method for recursive search
         :node:      _node()         root node of subtree
-        :data:      object()        which implements <, >, ==
-        """
+        :data:      object()        which implements <, >, == """
         if node:
             if data == node.data:
                 return True
@@ -130,8 +130,7 @@ class BinarySearchTree:
     def _insert(self, node, data):
         """ Hidden method for recursive insert
         :node:      _node()         root node of subtree
-        :data:      object()        which implements <, >, ==
-        """
+        :data:      object()        which implements <, >, == """
         if node.data is not None:
             if data < node.data:
                 if node.left is None:
@@ -147,9 +146,9 @@ class BinarySearchTree:
             node.data = data
 
     def _delete(self, node, data):
-        """
-
-        """
+        """ Hidden method for recursive _delete
+        :node:      _node()     root node of subtree
+        :data:      object()    which implements <, >, == """
         if node is None:
             return node
 
@@ -182,8 +181,7 @@ class BinarySearchTree:
 
     def _get_height(self, subtree):
         """ Hidden method which returns the nodes height in the tree
-        :subtree:   _node()     Root node of a subtree
-        """
+        :subtree:   _node()     Root node of a subtree """
         if not subtree:
             return 0
         return subtree.height
@@ -193,22 +191,19 @@ class AVLTree(BinarySearchTree):
     """ A self-balancing AVL tree """
     def __init__(self, data):
         """ Construct the root node
-        :data:      object()          Which implements relational <, >, ==
-        """
+        :data:      object()          Which implements relational <, >, == """
         super(AVLTree, self).__init__(data)
 
     def insert(self, data):
         """ Public method for inserting data
-        :data:      object()           Which implements relational <, >, ==
-        """
+        :data:      object()           Which implements relational <, >, == """
         self.root = self._insert(self.root, data)
         self.size += 1
 
     def delete(self, data):
         """ Public method for recursive delete
         Removes element and balances the tree
-        :data:      object           Which implements relational <, >, ==
-        """
+        :data:      object           Which implements relational <, >, == """
         self.root = self._delete(self.root, data)
         self.size -= 1
 
@@ -216,9 +211,7 @@ class AVLTree(BinarySearchTree):
         """ Hidden method for recursive insert
         :node:      _node()         A tree node
         :data:      object          Which implements relational <, >, ==
-
-        :returns:   _node()         a node (ultimately the new root)
-        """
+        :returns:   _node()         a node (ultimately the new root) """
         if not node:
             return self._node(data)
 
@@ -249,8 +242,7 @@ class AVLTree(BinarySearchTree):
     def _delete(self, node, data):
         """ Hidden method for recursive delete
         :node:      _node()         A tree node
-        :data:      object          Which implements relational <, >, ==
-        """
+        :data:      object          Which implements relational <, >, == """
         if not node:
             return node
 
@@ -297,8 +289,7 @@ class AVLTree(BinarySearchTree):
 
     def _rotate_left(self, subtree):
         """ Hidden method for left rotations
-        :subtree:   _node()     Root node of a subtree
-        """
+        :subtree:   _node()     Root node of a subtree """
         new_root = subtree.right
         left = new_root.left
 
@@ -311,8 +302,7 @@ class AVLTree(BinarySearchTree):
 
     def _rotate_right(self, subtree):
         """ Hidden method for right rotations
-        :subtree:   _node()     Root node of a subtree
-        """
+        :subtree:   _node()     Root node of a subtree """
         new_root = subtree.left
         right = new_root.right
 
@@ -325,8 +315,7 @@ class AVLTree(BinarySearchTree):
 
     def _get_balance(self, subtree):
         """ Hidden method which determines the tree balance
-        :subtree:   _node()     Root node of a subtree
-        """
+        :subtree:   _node()     Root node of a subtree """
         if not subtree:
             return 0
         return self._get_height(subtree.left) - self._get_height(subtree.right)
