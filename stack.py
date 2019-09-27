@@ -44,6 +44,10 @@ class Stack:
         """ SIZE of Stack, see also len() """
         return len(self.__stack)
 
+    @property
+    def size(self):
+        """ SIZE of Stack, see also len() """
+        return len(self.__stack)
     def push(self, value=None):
         """ PUSH operation """
         self.__stack.append(value)
